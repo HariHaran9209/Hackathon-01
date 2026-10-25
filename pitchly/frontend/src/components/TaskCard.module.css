@@ -1,0 +1,121 @@
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: grab;
+  position: relative;
+  touch-action: none;
+}
+
+.card:hover {
+  border-color: #58a6ff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.dragging {
+  opacity: 0.4;
+  border-style: dashed;
+  border-color: #3b82f6;
+}
+
+.cardOverlay {
+  background: #1c2128;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  transform: rotate(2deg) scale(1.02);
+  cursor: grabbing;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f0f6fc;
+  line-height: 1.4;
+}
+
+.dragHandle {
+  color: #8b949e;
+  cursor: grab;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.dragHandle:hover {
+  color: #c9d1d9;
+}
+
+.description {
+  font-size: 0.82rem;
+  color: #8b949e;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(48, 54, 61, 0.6);
+}
+
+.estimateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #21262d;
+  color: #79c0ff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 139, 253, 0.2);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.colSelect {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  outline: none;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: #8b949e;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.deleteButton:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+}

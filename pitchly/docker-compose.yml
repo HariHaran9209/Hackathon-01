@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pitchly-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pitchly_db
+      POSTGRES_USER: pitchly
+      POSTGRES_PASSWORD: pitchly_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pitchly -d pitchly_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pitchly-backend
+    restart: unless-stopped
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: "django-insecure-pitchly-docker-demo-key"
+      ALLOWED_HOSTS: "*"
+      DATABASE_URL: "postgres://pitchly:pitchly_password@postgres:5432/pitchly_db"
+      NEBIUS_BASE_URL: "${NEBIUS_BASE_URL:-https://api.studio.nebius.ai/v1}"
+      NEBIUS_API_KEY: "${NEBIUS_API_KEY:-}"
+      FAST_MODEL: "${FAST_MODEL:-meta-llama/Meta-Llama-3.1-8B-Instruct}"
+      REASONING_MODEL: "${REASONING_MODEL:-deepseek-ai/DeepSeek-R1-Distill-Llama-70B}"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pitchly-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

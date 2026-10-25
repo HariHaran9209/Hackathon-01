@@ -1,0 +1,9 @@
+.boardContainer {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
