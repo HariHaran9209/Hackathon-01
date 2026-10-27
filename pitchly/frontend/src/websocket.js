@@ -11,8 +11,26 @@ export function createProjectSocket(projectId, onMessage, onStatusChange) {
 
   function getSocketUrl() {
     if (import.meta.env.VITE_WS_URL) {
-      return `${import.meta.env.VITE_WS_URL}/ws/projects/${projectId}/`;
+      let wsUrl = import.meta.env.VITE_WS_URL.trim();
+      if (!/^wss?:\/\//i.test(wsUrl)) {
+        wsUrl = wsUrl.startsWith('localhost') || wsUrl.startsWith('127.0.0.1')
+          ? `ws://${wsUrl}`
+          : `wss://${wsUrl}`;
+      }
+      return `${wsUrl.replace(/\/+$/, '')}/ws/projects/${projectId}/`;
     }
+
+    if (import.meta.env.VITE_API_URL) {
+      let apiUrl = import.meta.env.VITE_API_URL.trim();
+      if (!/^https?:\/\//i.test(apiUrl)) {
+        apiUrl = apiUrl.startsWith('localhost') || apiUrl.startsWith('127.0.0.1')
+          ? `http://${apiUrl}`
+          : `https://${apiUrl}`;
+      }
+      const wsUrl = apiUrl.replace(/^http:\/\//i, 'ws://').replace(/^https:\/\//i, 'wss://');
+      return `${wsUrl.replace(/\/+$/, '')}/ws/projects/${projectId}/`;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
     return `${protocol}//${host}/ws/projects/${projectId}/`;

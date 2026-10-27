@@ -1,0 +1,1 @@
+web: cd pitchly/backend && python manage.py migrate && daphne -b 0.0.0.0 -p $PORT pitchly_backend.asgi:application

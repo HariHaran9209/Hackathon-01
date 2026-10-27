@@ -2,9 +2,19 @@
  * Pitchly REST API Client
  */
 
-const API_BASE = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
+function resolveApiBase() {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return '/api';
+  let formatted = envUrl.trim();
+  if (!/^https?:\/\//i.test(formatted)) {
+    formatted = formatted.startsWith('localhost') || formatted.startsWith('127.0.0.1')
+      ? `http://${formatted}`
+      : `https://${formatted}`;
+  }
+  return `${formatted.replace(/\/+$/, '')}/api`;
+}
+
+const API_BASE = resolveApiBase();
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;

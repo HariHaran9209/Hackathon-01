@@ -5,6 +5,8 @@ Welcome to **Pitchly**, an AI copilot that turns rough ideas into structured eng
 The complete MVP application is located in the [`pitchly/`](./pitchly/) directory.
 
 ## Quick Links
+- **[Cloud Deployment Guide (Render, Railway, Vercel)](./DEPLOYMENT.md)**
+- **[Render 1-Click Blueprint (`render.yaml`)](./render.yaml)**
 - **[Pitchly README & Architecture Documentation](./pitchly/README.md)**
 - **[Docker Compose Setup](./pitchly/docker-compose.yml)**
 - **[Backend (Django + DRF + Channels)](./pitchly/backend/)**

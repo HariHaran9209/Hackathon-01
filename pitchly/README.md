@@ -131,7 +131,17 @@ docker compose up --build
 
 ---
 
-## 💻 Running Locally on Laptop (Without Docker)
+## ☁️ Cloud Deployment (Render, Railway, Vercel)
+
+Pitchly is pre-configured with a **Render Blueprint (`render.yaml`)** for 1-click cloud deployment:
+
+- **Frontend**: Render Static Site (Free, global CDN, automated SPA rewrites)
+- **Backend**: Render Web Service (Free, Daphne ASGI server for REST API + live WebSockets)
+- **Database**: Render Managed PostgreSQL (Free tier)
+
+See the full **[Cloud Deployment Guide](../DEPLOYMENT.md)** for 1-click blueprint deployment and manual configuration steps.
+
+---
 
 You can run Pitchly directly on your laptop using Python and Node.js with built-in SQLite:
 

@@ -22,4 +22,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Run migrations and start Daphne ASGI server for HTTP & WebSocket support
-CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 pitchly_backend.asgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p ${PORT:-8000} pitchly_backend.asgi:application"]
