@@ -45,8 +45,8 @@ export default function Board({ tasks = [], onUpdateTask, onDeleteTask }) {
 
     if (!over) return;
 
-    const activeTaskId = parseInt(String(active.id).replace('task-', ''), 10);
-    const activeTaskObj = tasks.find((t) => t.id === activeTaskId);
+    const rawActiveId = String(active.id).replace('task-', '');
+    const activeTaskObj = tasks.find((t) => String(t.id) === rawActiveId);
     if (!activeTaskObj) return;
 
     let targetColumn = activeTaskObj.column;
@@ -55,8 +55,8 @@ export default function Board({ tasks = [], onUpdateTask, onDeleteTask }) {
     if (String(over.id).startsWith('column-')) {
       targetColumn = String(over.id).replace('column-', '');
     } else if (String(over.id).startsWith('task-')) {
-      const overTaskId = parseInt(String(over.id).replace('task-', ''), 10);
-      const overTaskObj = tasks.find((t) => t.id === overTaskId);
+      const rawOverId = String(over.id).replace('task-', '');
+      const overTaskObj = tasks.find((t) => String(t.id) === rawOverId);
       if (overTaskObj) {
         targetColumn = overTaskObj.column;
       }
@@ -64,7 +64,7 @@ export default function Board({ tasks = [], onUpdateTask, onDeleteTask }) {
 
     if (targetColumn && COLUMNS.includes(targetColumn)) {
       if (targetColumn !== activeTaskObj.column) {
-        onUpdateTask(activeTaskId, { column: targetColumn });
+        onUpdateTask(activeTaskObj.id, { column: targetColumn });
       }
     }
   };

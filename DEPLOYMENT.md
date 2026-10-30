@@ -1,167 +1,130 @@
-# Deploying Pitchly to Cloud (Render, Railway & Vercel)
+# 100% Free Deployment Guide (No Credit Card Required)
 
-Pitchly is a full-stack AI Copilot application consisting of:
-- **Backend**: Django 5 + Django Channels 4 + Daphne ASGI (handles REST API and live WebSockets)
-- **Frontend**: React 18 + Vite + `@dnd-kit` (interactive Kanban board & AI chat)
-- **Database**: PostgreSQL (with fallback to SQLite)
-- **AI Models**: Nebius Token Factory (NVIDIA / open weights models like Llama 3.1 & DeepSeek R1)
+This guide shows you how to deploy **Pitchly** completely **free** without paid plans, without Render Blueprints, and without needing to install or manage complicated databases.
 
 ---
 
-## Architecture on Render
+## 💡 Why Not Blueprints or Local PostgreSQL?
 
-```
-       [ Browser / Client ]
-            /         \
-  (HTTP / Assets)   (WebSocket / API)
-          /             \
-         v               v
- [ Render Static Site ]  [ Render Web Service (Daphne ASGI) ]
-  (pitchly-frontend)      (pitchly-backend: /api and /ws/)
-                                 |
-                                 v
-                        [ Render PostgreSQL ]
-                           (pitchly-db)
-```
+1. **Render Blueprints**: Render requires a paid plan or credit card verification when launching databases or multiple services via Blueprints (`render.yaml`).
+2. **Individual Services are 100% FREE**: Creating an individual **Web Service** or **Static Site** on Render is **completely free** with **no credit card needed**.
+3. **The Database Dilemma**:
+   - Installing and configuring PostgreSQL locally is complicated (ports, users, pgAdmin, services).
+   - In contrast, people love **MongoDB Atlas** because you just copy a cloud URL.
+   - **However, Django is a relational SQL framework**. Swapping Django's ORM to MongoDB breaks built-in Django features (ForeignKeys, migrations, admin, and ID auto-increments).
+   - **The Solution**: Use **Neon.tech** (Serverless PostgreSQL) or **Supabase**!
+     - It gives you the **exact same copy-paste cloud URL experience as MongoDB Atlas**.
+     - 100% **free forever**, **no credit card**, no local installation.
+     - Or even simpler: **Pitchly works out of the box with built-in SQLite** (zero setup needed!).
 
 ---
 
-## Method 1: 1-Click Render Blueprint (Recommended)
+## 🚀 Recommended 100% Free Architecture
 
-Render Blueprints allow infrastructure-as-code deployment. The repository already contains [`render.yaml`](./render.yaml).
+| Component | Platform | Cost | Credit Card? |
+|---|---|---|---|
+| **Frontend** | **Vercel** or **Render Static Site** | Free | ❌ None |
+| **Backend** | **Render Web Service** (Manual) | Free | ❌ None |
+| **Database** | **Neon.tech** (Serverless DB) or **Built-in SQLite** | Free | ❌ None |
 
-### Steps:
+---
 
-1. **Commit and push your changes to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Configure Render Blueprint and production settings"
-   git push origin main
+## Step 1: Get a Free Cloud Database (1 Minute — 0 Setup)
+
+> *Skip this step if you want to test with built-in SQLite first!*
+
+1. Go to **[neon.tech](https://neon.tech/)** and click **Sign Up** (use your GitHub or Google account).
+2. Click **Create Project**, name it `pitchly`, and click **Create**.
+3. On the project dashboard, you will see a connection string:
+   ```text
+   postgresql://alex:AbC123dEf@ep-cool-fog-123456.us-east-2.aws.neon.tech/neondb?sslmode=require
    ```
-
-2. **Log into Render**:
-   - Go to [dashboard.render.com](https://dashboard.render.com/) (sign in with GitHub).
-
-3. **Deploy via Blueprint**:
-   - Click the **New +** button in the top right.
-   - Select **Blueprint**.
-   - Connect your GitHub repository: `HariHaran9209/Hackathon-01`.
-   - Render will parse `render.yaml` and show:
-     - `pitchly-db` (PostgreSQL Database - Free)
-     - `pitchly-backend` (Web Service - Free)
-     - `pitchly-frontend` (Static Site - Free)
-   - In the environment variable prompt, enter your `NEBIUS_API_KEY` (from [Nebius Studio](https://studio.nebius.ai/)).
-   - Click **Apply**.
-
-4. **Verify Deployment**:
-   - Render automatically provisions the database, runs migrations (`python manage.py migrate`), collects static files, and builds the frontend.
-   - When the frontend build completes, click on your `pitchly-frontend.onrender.com` URL to open Pitchly!
+4. Copy this string. That's it! You have a fully managed, permanent cloud database with zero configuration.
 
 ---
 
-## Method 2: Manual Setup on Render Dashboard
+## Step 2: Deploy Backend to Render (100% Free)
 
-If you prefer configuring services step-by-step in the Render UI:
-
-### 1. Create PostgreSQL Database
-1. In Render Dashboard, click **New +** -> **PostgreSQL**.
-2. Name: `pitchly-db`
-3. Database: `pitchly`
-4. User: `pitchly`
-5. Plan: **Free**
-6. Click **Create Database**.
-7. Once created, copy the **Internal Database URL** (e.g., `postgres://pitchly:...@.../pitchly`).
-
-### 2. Create Backend Web Service
-1. In Render Dashboard, click **New +** -> **Web Service**.
-2. Select repository: `HariHaran9209/Hackathon-01`.
-3. Configure settings:
+1. Go to **[dashboard.render.com](https://dashboard.render.com/)** and log in with GitHub.
+2. Click **New +** in the top-right corner and select **Web Service**.
+3. Choose **Build and deploy from a Git repository** and select your repository: **`HariHaran9209/Hackathon-01`**.
+4. Fill in the service settings:
    - **Name**: `pitchly-backend`
-   - **Region**: Oregon (same as your DB)
+   - **Region**: Oregon (or nearest to you)
    - **Branch**: `main`
    - **Root Directory**: `pitchly/backend`
    - **Runtime**: `Python`
-   - **Build Command**: `pip install -r requirements.txt && python manage.py collectstatic --no-input`
-   - **Start Command**: `python manage.py migrate && daphne -b 0.0.0.0 -p $PORT pitchly_backend.asgi:application`
-   - **Instance Type**: `Free`
-4. Add **Environment Variables**:
+   - **Build Command**:
+     ```bash
+     pip install -r requirements.txt && python manage.py collectstatic --no-input
+     ```
+   - **Start Command**:
+     ```bash
+     python manage.py migrate && daphne -b 0.0.0.0 -p $PORT pitchly_backend.asgi:application
+     ```
+   - **Instance Type**: Select **Free** ($0/month).
+5. Scroll down to **Environment Variables** and add:
    | Key | Value | Notes |
    |---|---|---|
    | `DEBUG` | `False` | Production mode |
-   | `SECRET_KEY` | *(generate a random string)* | Security key |
-   | `ALLOWED_HOSTS` | `*` | Or `*.onrender.com` |
-   | `CSRF_TRUSTED_ORIGINS` | `https://*.onrender.com` | Prevents CSRF errors |
-   | `DATABASE_URL` | *(paste Internal Database URL)* | From step 1 |
-   | `NEBIUS_BASE_URL` | `https://api.studio.nebius.ai/v1` | API base |
-   | `NEBIUS_API_KEY` | *(your Nebius API key)* | Secret key |
-   | `FAST_MODEL` | `meta-llama/Meta-Llama-3.1-8B-Instruct` | Card generator |
-   | `REASONING_MODEL` | `deepseek-ai/DeepSeek-R1-Distill-Llama-70B` | Deep planner |
-5. Click **Create Web Service**.
-6. Wait for deploy to complete. Note the backend URL (e.g. `https://pitchly-backend.onrender.com`).
+   | `SECRET_KEY` | *(type any random 30-character text)* | e.g. `pitchly-secret-prod-key-xyz-123` |
+   | `ALLOWED_HOSTS` | `*` | Allows Render domain |
+   | `CSRF_TRUSTED_ORIGINS` | `https://*.onrender.com` | Prevents CSRF issues |
+   | `CORS_ALLOW_ALL_ORIGINS` | `True` | Allows frontend access |
+   | `DATABASE_URL` | *(paste the Neon connection string from Step 1)* | Leave empty to use SQLite |
+   | `NEBIUS_BASE_URL` | `https://api.studio.nebius.ai/v1` | AI endpoint |
+   | `NEBIUS_API_KEY` | *(your Nebius API key or leave empty for offline demo)* | Optional |
+6. Click **Create Web Service**.
+7. Render will build and deploy the backend. Once deployed, copy your backend URL (e.g. `https://pitchly-backend.onrender.com`).
+8. You can verify it's working by opening `https://pitchly-backend.onrender.com/health/` in your browser. It will return:
+   ```json
+   {"status": "healthy", "service": "pitchly-backend"}
+   ```
 
-### 3. Create Frontend Static Site
-1. In Render Dashboard, click **New +** -> **Static Site**.
-2. Select repository: `HariHaran9209/Hackathon-01`.
+---
+
+## Step 3: Deploy Frontend (Choose Vercel or Render)
+
+### Option A: Deploy on Vercel (Fastest & 100% Free)
+
+1. Go to **[vercel.com](https://vercel.com/)** and log in with GitHub.
+2. Click **Add New...** -> **Project**.
+3. Import your GitHub repository: **`HariHaran9209/Hackathon-01`**.
+4. In the configuration screen:
+   - **Framework Preset**: Vite
+   - **Root Directory**: Click *Edit* and select **`pitchly/frontend`**.
+5. Expand **Environment Variables** and add:
+   - **Name**: `VITE_API_URL`
+   - **Value**: `https://pitchly-backend.onrender.com` *(your backend URL from Step 2)*
+6. Click **Deploy**.
+7. In ~30 seconds, your site is live!
+
+---
+
+### Option B: Deploy on Render Static Site (100% Free)
+
+1. On the **Render Dashboard**, click **New +** -> **Static Site**.
+2. Select your repository: **`HariHaran9209/Hackathon-01`**.
 3. Configure settings:
    - **Name**: `pitchly-frontend`
    - **Branch**: `main`
    - **Root Directory**: `pitchly/frontend`
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `dist`
-4. Add **Environment Variables**:
-   | Key | Value |
-   |---|---|
-   | `VITE_API_URL` | `https://pitchly-backend.onrender.com` |
-   | `VITE_WS_URL` | `wss://pitchly-backend.onrender.com` |
-5. Add **Redirects/Rewrites**:
-   - Go to **Redirects/Rewrites** tab in the static site settings.
-   - Click **Add Rule**:
-     - **Type**: `Rewrite`
-     - **Source**: `/*`
-     - **Destination**: `/index.html`
+4. Add Environment Variable:
+   - `VITE_API_URL`: `https://pitchly-backend.onrender.com`
+5. Click **Advanced** -> scroll to **Redirects/Rewrites** and add:
+   - **Type**: `Rewrite`
+   - **Source**: `/*`
+   - **Destination**: `/index.html`
 6. Click **Create Static Site**.
 
 ---
 
-## Method 3: Alternative Platforms
+## ⚡ Important Free-Tier Tips
 
-### Option A: Railway (All-in-One Full Stack)
-1. Go to [railway.app](https://railway.app/).
-2. Click **New Project** -> **Deploy from GitHub repo**.
-3. Add a **PostgreSQL** service in Railway.
-4. Add your repository as a service:
-   - Set **Root Directory** to `pitchly/backend`.
-   - Railway will detect the [`Procfile`](./pitchly/backend/Procfile) automatically.
-   - Connect the PostgreSQL database variable `DATABASE_URL`.
-   - Add `NEBIUS_API_KEY`.
-5. Add another service for `pitchly/frontend`:
-   - Set **Root Directory** to `pitchly/frontend`.
-   - Set `VITE_API_URL` to the Railway backend domain.
-
-### Option B: Frontend on Vercel + Backend on Render
-- **Frontend on Vercel**:
-  1. Import `HariHaran9209/Hackathon-01` into [Vercel](https://vercel.com/).
-  2. Set Framework Preset to **Vite**.
-  3. Set Root Directory to `pitchly/frontend`.
-  4. Add Environment Variable `VITE_API_URL=https://your-backend.onrender.com`.
-  5. Deploy.
-- **Backend on Render**:
-  - Keep the Daphne ASGI service running on Render (as outlined in Method 2).
-
----
-
-## Production & Free-Tier Tips
-
-1. **Render Free Tier Spin-Down (Cold Starts)**:
-   - Render's free tier web services spin down after 15 minutes of inactivity. When a new request arrives, it may take 30–50 seconds to wake up.
-   - **Solution**: Set up a free uptime monitor (like [UptimeRobot](https://uptimerobot.com/) or [cron-job.org](https://cron-job.org/)) to ping `https://your-backend.onrender.com/health/` every 10 minutes.
-
-2. **Render Free PostgreSQL 30-Day Limit**:
-   - Render's free PostgreSQL database is automatically deleted after 30 days.
-   - **Permanent Free Alternative**: Create a free PostgreSQL database on [Neon.tech](https://neon.tech/) or [Supabase](https://supabase.com/). Simply set the `DATABASE_URL` environment variable in Render to your Neon/Supabase connection string!
-
-3. **WhiteNoise Static Serving**:
-   - WhiteNoise is already configured to compress and serve Django admin and REST framework assets directly in production with zero extra configuration.
-
-4. **Health Check Endpoint**:
-   - The backend provides a `/health/` endpoint that returns `{"status": "healthy"}` for container health monitoring.
+1. **Free Backend Spin-Down (Cold Starts)**:
+   - Render's free tier spins down the backend after 15 minutes of inactivity. When someone visits, it can take ~40 seconds to wake up.
+   - **Free Fix**: Use a free monitoring service like [cron-job.org](https://cron-job.org/) or [UptimeRobot](https://uptimerobot.com/) to send an HTTP GET request to `https://pitchly-backend.onrender.com/health/` every 10 minutes.
+2. **WebSocket Auto-Detection**:
+   - The frontend automatically detects the protocol. When `VITE_API_URL` is set to `https://pitchly-backend.onrender.com`, it automatically connects WebSockets to `wss://pitchly-backend.onrender.com/ws/projects/...`.
